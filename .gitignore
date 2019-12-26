@@ -2,7 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+*.vs
+*env_google_api
+data/*
+credentIals.json
+token*
 # C extensions
 *.so
 
