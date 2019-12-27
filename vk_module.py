@@ -6,7 +6,7 @@ from vk_api.utils import get_random_id
 
 from secret import config
 
-vk = VkApi(token=config.access_token)# Auth with community token
+vk = VkApi(token=config.access_token) # Auth with community token
 
 def reconnect():
     """

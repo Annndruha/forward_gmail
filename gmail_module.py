@@ -19,7 +19,8 @@ DATA_PATH = './temp/'
 
 def auth():
     """
-    Create a credentials file requested premissions in
+    Download a credentials file from: (Enable API)
+    https://developers.google.com/gmail/api/quickstart/python
     your browser, after that create a token to execute api commands.
     """
     # If modifying these scopes, delete the file token.pickle.
