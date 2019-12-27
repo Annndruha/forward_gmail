@@ -1,19 +1,27 @@
+# Get messages from gmail
+# Marakulin Andrey @annndruha
+# 2020
 
 import re
 import os.path
 import base64
 import email
 
-#from apiclient import errors
 import pickle
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
+
 CREDINTIALS_PATH = './secret/credentials.json'
 TOKEN_PATH = './secret/token.pickle'
+DATA_PATH = './temp/'
 
 def auth():
+    """
+    Create a credentials file requested premissions in
+    your browser, after that create a token to execute api commands.
+    """
     # If modifying these scopes, delete the file token.pickle.
     SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
     creds = None
@@ -37,12 +45,12 @@ def auth():
 
 
 def GetSimpleText(data):
-    #data = message['payload']['body']['data']
+    """
+    Encoding email message text from bytes format
+    and clear html tags. Cut message reply part.
+    """
     bytes = base64.urlsafe_b64decode(data.encode('UTF-8'))
-
-
     text = bytes.decode('utf-8')
-
     cleantext = re.sub(r'{.*?}', '', re.sub(r'<.*?>', '', re.sub (r' +', ' ', re.sub(r"\n+", '\n', re.sub(r" \n", '\n', text)))))
 
     if cleantext.find('&')>=0:
@@ -52,23 +60,26 @@ def GetSimpleText(data):
     return cleantext
 
 def GetAttachments(service, user_id, msg_id, store_dir, message):
+    """
+    Download attachments to DATA_PATH if exists.
+    Return text if exist with attachments.
+    """
     try:
         text = None
         for part in message['payload']['parts']:
-            if part['filename']:
+            if part['filename']: # In this case downloads attachments
 
-                att_id = part['body']['attachmentId']
-
-                attach = service.users().messages().attachments().get(userId='me', messageId = msg_id, id=att_id).execute()
+                attach_id = part['body']['attachmentId']
+                attach = service.users().messages().attachments().get(userId='me', messageId = msg_id, id=attach_id).execute()
                 data = attach['data']
                 bytes = base64.urlsafe_b64decode(data.encode('UTF-8'))
 
                 path = ''.join([store_dir, part['filename']])
-
                 with open(path, 'wb') as f:
                     f.write(bytes)
                     f.close()
-            else:
+
+            else: # In this case (only text) parse text 
                 data = part['body']['data']
                 text = GetSimpleText(data)
                 
@@ -76,32 +87,30 @@ def GetAttachments(service, user_id, msg_id, store_dir, message):
         print(err.args)
     return text
 
-
-
-
 def get_message(service, msg_id):
+    """
+    Main function to get message, attachments and metadata.
+    Call download attach func and return message text with metadata.
+    """
     message = service.users().messages().get(userId='me', id=msg_id).execute() # Get info about last message
     MIME_type = message['payload']['mimeType']
 
 
     # Select type of email message
     if MIME_type == 'multipart/mixed':
-        text = GetAttachments(service, 'me', msg_id, './data/', message)
-        if text is None:
-            text = '//Без текста//'
+        text = GetAttachments(service, 'me', msg_id, DATA_PATH, message)
 
     elif MIME_type == 'text/html':
         data = message['payload']['body']['data']
         text = GetSimpleText(data)
 
-    elif MIME_type == 'text/plain':
-        text = '//Без текста//'
+    elif MIME_type == 'text/plain': # If in message only theme
+        text = None
 
     else:
-        do_smth_else = 0
+        text = 'прислал(а) сообщение, но его тип не поддерживает пересылку. Проверьте почту.'
 
-
-
+    # Combine different kinds of text to send
     message_to_vk = ''
     theme = None
     sender = None

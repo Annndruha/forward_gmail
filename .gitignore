@@ -1,19 +1,6 @@
-# Byte-compiled / optimized / DLL files
 
-
-
-*.vs
-*env_google_api
-#data/*
 secret
-
-
-
-
-
-
-
-
+*.vs
 
 
 __pycache__/
