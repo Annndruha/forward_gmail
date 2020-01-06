@@ -82,7 +82,11 @@ def GetAttachments(service, user_id, msg_id, store_dir, message):
 
             else: # In this case (only text) parse text 
                 data = part['body']['data']
-                text = GetSimpleText(data)
+                if part['mimeType'] == 'text/html':
+                    if text is None:
+                        text = GetSimpleText(data)
+                else:
+                    text = GetSimpleText(data)
                 
     except  BaseException as err:
         print(err.args)
@@ -98,7 +102,7 @@ def get_message(service, msg_id):
 
 
     # Select type of email message
-    if MIME_type == 'multipart/mixed':
+    if MIME_type in ('multipart/mixed', 'multipart/alternative'):
         text = GetAttachments(service, 'me', msg_id, DATA_PATH, message)
 
     elif MIME_type == 'text/html':

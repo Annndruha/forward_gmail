@@ -32,7 +32,6 @@ def forward_message(service, new_msg_id):
     write_msg(config.user_id, message_to_vk, attach = attachment_ids)
 
 
-
 if __name__ == '__main__':
     service = auth()
     reconnect()
@@ -40,7 +39,6 @@ if __name__ == '__main__':
     messages_ids = service.users().messages().list(userId='me').execute() # Get messages ids
     msg_id = messages_ids['messages'][0]['id'] # Select last id
     
-
     new_msg_id = None
     print('===Script start===')
     start_time = time.time()
