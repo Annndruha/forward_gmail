@@ -15,20 +15,24 @@ from secret import config
 def forward_message(service, new_msg_id):
     message_to_vk = get_message(service, new_msg_id) # Download attachments and extract message
     files = os.listdir(DATA_PATH)
+
     attachments_list = []
+    error_counter = 0
 
     for file_name in files:
         attach_str = get_attach_str(config.user_id, DATA_PATH + file_name)
         if attach_str == 'error':
-            message_to_vk += '\nОдно или несколько вложений не загружено. Проверьте почту.'
+            error_counter +=1
         else:
             attachments_list.append(attach_str)
+
         os.remove(os.path.join(DATA_PATH, file_name))
     if len(attachments_list) > 0:
         attachment_ids = ','.join(attachments_list)
     else:
         attachment_ids = None
 
+    if error_counter>0 : message_to_vk += f'\n<{error_counter}> вложений не загружено. Проверьте почту.'
     write_msg(config.user_id, message_to_vk, attach = attachment_ids)
 
 
