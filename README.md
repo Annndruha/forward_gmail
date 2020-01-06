@@ -20,3 +20,11 @@ and locate file to secret folder.
 
 + Run ```main.py``` First run it create a ```token.pickle``` in secret.
 If you want to change settings in future, delete this file and repeat.
+
+### Docker run
+
+Run docker command:
+
+```
+docker run -d --name gmail -v /root/gmail/secret:/gmail/secret imagename
+```
