@@ -6,6 +6,7 @@ import re
 import os.path
 import base64
 import email
+import html2text
 
 import pickle
 from googleapiclient.discovery import build
@@ -23,12 +24,8 @@ def auth():
     https://developers.google.com/gmail/api/quickstart/python
     your browser, after that create a token to execute api commands.
     """
-    # If modifying these scopes, delete the file token.pickle.
     SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
     creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
     if os.path.exists(TOKEN_PATH):
         with open(TOKEN_PATH, 'rb') as token:
             creds = pickle.load(token)
@@ -45,17 +42,22 @@ def auth():
     return service
 
 
-def GetSimpleText(data):
+def GetSimpleText(data, from_html = False):
     """
     Encoding email message text from bytes format
     and clear html tags. Cut message reply part.
     """
     bytes = base64.urlsafe_b64decode(data.encode('UTF-8'))
     text = bytes.decode('utf-8')
-    cleantext = re.sub(r'{.*?}', '', re.sub(r'<.*?>', '', re.sub (r' +', ' ', re.sub(r"\n+", '\n', re.sub(r" \n", '\n', text)))))
+    if from_html:
+        cleantext = html2text.html2text(text)
+    else:
+        cleantext = re.sub(r'{.*?}', '', re.sub(r'<.*?>', '', re.sub (r' +', ' ', re.sub(r"\n+", '\n', re.sub(r" \n", '\n', text)))))
 
     if cleantext.find('&')>=0:
         cleantext = cleantext.split('&')[0]
+    if len(cleantext)>1000:
+        cleantext = cleantext[:1000]
         cleantext += '\nПродолжение читать в источнике...'
 
     return cleantext
@@ -107,7 +109,7 @@ def get_message(service, msg_id):
 
     elif MIME_type == 'text/html':
         data = message['payload']['body']['data']
-        text = GetSimpleText(data)
+        text = GetSimpleText(data, True)
 
     elif MIME_type == 'text/plain': # If in message only theme
         text = None

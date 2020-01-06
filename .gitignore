@@ -3,6 +3,7 @@ secret
 *.vs
 test.py
 secret_andruha_a.p.marakulin
+secret_marakulin
 
 __pycache__/
 *.py[cod]
