@@ -56,9 +56,8 @@ def GetSimpleText(data, from_html = False):
 
     if cleantext.find('&')>=0:
         cleantext = cleantext.split('&')[0]
-    if len(cleantext)>1000:
-        cleantext = cleantext[:1000]
-        cleantext += '\nПродолжение читать в источнике...'
+    if len(cleantext)>1200:
+        cleantext = '<Формат текста не поддерживает пересылку.>'
 
     return cleantext
 
@@ -86,7 +85,7 @@ def GetAttachments(service, user_id, msg_id, store_dir, message):
                 data = part['body']['data']
                 if part['mimeType'] == 'text/html':
                     if text is None:
-                        text = GetSimpleText(data)
+                        text = GetSimpleText(data, True)
                 else:
                     text = GetSimpleText(data)
                 
