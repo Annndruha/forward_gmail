@@ -1,8 +1,5 @@
-# Forward Gmail
-Script to receive new Gmail messages and forward its to VK chat with attachments.
-
-
-
+# Gmail Forwarder
+Script detect new Gmail messages and forward it's to VK chat (with attachments).
 
 ### First time setting:
 + Create (if not exist folder ```secret``` and ``temp`` in main directory)
