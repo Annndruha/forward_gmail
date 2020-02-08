@@ -1,7 +1,6 @@
 # Get messages from gmail
 # Marakulin Andrey @annndruha
 # 2020
-
 import re
 import os.path
 import base64
@@ -61,14 +60,14 @@ def GetSimpleText(data, from_html = False):
 
     return cleantext
 
-def GetAttachments(service, user_id, msg_id, store_dir, message):
+def GetAttachments(service, user_id, msg_id, store_dir, payload):
     """
     Download attachments to DATA_PATH if exists.
     Return text if exist with attachments.
     """
     try:
         text = None
-        for part in message['payload']['parts']:
+        for part in payload['parts']:
             if part['filename']: # In this case downloads attachments
 
                 attach_id = part['body']['attachmentId']
@@ -82,12 +81,15 @@ def GetAttachments(service, user_id, msg_id, store_dir, message):
                     f.close()
 
             else: # In this case (only text) parse text 
-                data = part['body']['data']
-                if part['mimeType'] == 'text/html':
-                    if text is None:
-                        text = GetSimpleText(data, True)
-                else:
-                    text = GetSimpleText(data)
+                if part['mimeType'] in ('multipart/mixed', 'multipart/alternative'):
+                    text = GetAttachments(service, 'me', msg_id, DATA_PATH, part)
+                if 'data' in part['body']:
+                    data = part['body']['data']
+                    if part['mimeType'] == 'text/html':
+                        if text is None:
+                            text = GetSimpleText(data, True)
+                    else:
+                        text = GetSimpleText(data)
                 
     except  BaseException as err:
         print(err.args)
@@ -104,7 +106,8 @@ def get_message(service, msg_id):
 
     # Select type of email message
     if MIME_type in ('multipart/mixed', 'multipart/alternative'):
-        text = GetAttachments(service, 'me', msg_id, DATA_PATH, message)
+        payload = message['payload']
+        text = GetAttachments(service, 'me', msg_id, DATA_PATH, payload)
 
     elif MIME_type == 'text/html':
         data = message['payload']['body']['data']
@@ -114,7 +117,7 @@ def get_message(service, msg_id):
         text = None
 
     else:
-        text = 'прислал(а) сообщение, но его тип не поддерживает пересылку. Проверьте почту.'
+        text = '<прислал(а) сообщение, но его тип не поддерживает пересылку. Проверьте почту.>'
 
     # Combine different kinds of text to send
     message_to_vk = ''

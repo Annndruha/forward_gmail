@@ -3,14 +3,12 @@ import json
 
 from vk_api import VkApi
 from vk_api.utils import get_random_id
-
-from secret import config
-
-vk = VkApi(token=config.access_token) # Auth with community token
+config = json.load(open('./secret/config.json', 'r'))
+vk = VkApi(token=config['access_token']) # Auth with community token
 
 def reconnect():
     global vk # Reconnect to vk server
-    vk = VkApi(token=config.access_token)
+    vk = VkApi(token=config['access_token'])
 
 
 def get_attach_str(user_id, file_dir):
