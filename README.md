@@ -23,5 +23,5 @@ If you want to change settings in future, delete this file and repeat.
 Run docker command:
 
 ```
-docker run -d --name gmail -v /root/gmail/secret:/gmail/secret imagename
+docker run -d --name gmail -v /root/gmail/secret:/gmail/secret --restart always imagename
 ```
