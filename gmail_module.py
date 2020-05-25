@@ -53,6 +53,9 @@ def GetSimpleText(data, from_html = False):
     else:
         cleantext = re.sub(r'{.*?}', '', re.sub(r'<.*?>', '', re.sub (r' +', ' ', re.sub(r"\n+", '\n', re.sub(r" \n", '\n', text)))))
 
+    for _ in range(10):
+       cleantext = cleantext.replace('\n\n\n','\n\n')
+
     if cleantext.find('&')>=0:
         cleantext = cleantext.split('&')[0]
     if len(cleantext)>1200:

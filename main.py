@@ -57,7 +57,10 @@ if __name__ == '__main__':
     print('===Script start===')
     while True:
         try:
-            new_msg_id = service.users().messages().list(userId='me').execute()['messages'][0]['id']
+            lbls = list().append('INBOX')
+            response_msgs = service.users().messages().list(userId='me',labelIds=lbls).execute()
+
+            new_msg_id =response_msgs['messages'][0]['id']
 
             with open(SEND_LIST_PATH, 'r') as f:
                 send_messages_ids = f.read().splitlines()
@@ -70,7 +73,7 @@ if __name__ == '__main__':
                 with open(SEND_LIST_PATH, 'a+') as f:
                     print(new_msg_id, file=f)
 
-        except BaseException as err:
+        except Exception as err:
             traceback.print_tb(err.__traceback__)
             print(err.args)
             service = auth()
